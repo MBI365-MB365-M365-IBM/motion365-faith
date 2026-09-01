@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion365 — Galaxy</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#05060b;color:#eef1ff;font-family:system-ui,-apple-system,sans-serif}
+header{padding:28px 22px;text-align:center;border-bottom:1px solid #20243a}
+h1{margin:0;font-size:34px;letter-spacing:4px}
+.sub{opacity:.65;margin-top:7px}
+main{max-width:1100px;margin:auto;padding:28px 18px}
+.galaxy{text-align:center;padding:30px 10px}
+.orb{width:150px;height:150px;margin:10px auto 25px;border-radius:50%;
+background:radial-gradient(circle at 35% 30%,#fff,#8ca5ff 12%,#5c3cff 35%,#16102f 68%,#05060b 72%);
+box-shadow:0 0 35px #654cff,0 0 100px #322080;animation:pulse 4s infinite ease-in-out}
+@keyframes pulse{50%{transform:translateY(-9px) scale(1.04);box-shadow:0 0 50px #8b6cff,0 0 130px #342080}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{padding:22px;border:1px solid #282d49;border-radius:18px;background:#0c0f1c}
+.card h2{margin-top:0}.tag{opacity:.6;font-size:13px}
+button{width:100%;padding:13px;margin-top:12px;border:1px solid #4650a0;border-radius:12px;background:#111631;color:white;font-size:15px}
+button:active{transform:scale(.98)}
+footer{text-align:center;padding:30px;opacity:.45}
+</style>
+</head>
+<body>
+<header>
+<h1>MOTION365</h1>
+<div class="sub">THE GALAXY</div>
+</header>
+
+<main>
+<section class="galaxy">
+<div class="orb"></div>
+<h2>Move to Purpose</h2>
+<p>One Galaxy. Infinite Worlds. Connected Portals.</p>
+</section>
+
+<section class="grid">
+<div class="card">
+<div class="tag">WORLD</div>
+<h2>🌍 Ecosystems</h2>
+<p>Worlds are independent ecosystems inside the Motion365 Galaxy.</p>
+<button onclick="location.href='worlds/'">Explore Worlds</button>
+</div>
+
+<div class="card">
+<div class="tag">PORTAL</div>
+<h2>🚪 Portals</h2>
+<p>Functional ecosystems that connect people, content and experiences.</p>
+<button onclick="location.href='portals/'">Enter Portal</button>
+</div>
+
+<div class="card">
+<div class="tag">NODE</div>
+<h2>◉ Nodes</h2>
+<p>Connected destinations that can themselves become portals.</p>
+<button onclick="location.href='nodes/'">Open Node</button>
+</div>
+
+<div class="card">
+<div class="tag">IDENTITY</div>
+<h2>🔭 Explorer</h2>
+<p>Discover Worlds, Portals and Nodes across the Galaxy.</p>
+<button onclick="location.href='explorer/'">Explore</button>
+</div>
+
+<div class="card">
+<div class="tag">IDENTITY</div>
+<h2>👤 Member</h2>
+<p>Participate, connect and build relationships within ecosystems.</p>
+<button onclick="location.href='galaxy/'">Enter My Galaxy</button>
+</div>
+
+<div class="card">
+<div class="tag">IDENTITY</div>
+<h2>🏗 Architect</h2>
+<p>Create and evolve Worlds, Portals, Nodes and connections.</p>
+<button onclick="location.href='architect/'">Architect Studio</button>
+</div>
+</section>
+</main>
+
+<footer>Motion365.faith · Galaxy Engine Foundation</footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+motion365.faith {
+    root * /srv
+
+    handle /api/core/* {
+        uri strip_prefix /api/core
+        reverse_proxy motion365-core:8080
+    }
+
+    handle {
+        file_server
+    }
+}

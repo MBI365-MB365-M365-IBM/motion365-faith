@@ -1,0 +1,16 @@
+services:
+  motion-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: motion365-core
+    restart: unless-stopped
+    expose:
+      - "8080"
+    networks:
+      - motion365_default
+
+networks:
+  motion365_default:
+    external: true
+    name: motion365_default

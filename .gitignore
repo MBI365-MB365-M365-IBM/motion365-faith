@@ -1,0 +1,58 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+*.secret
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Runtime
+*.log
+logs/
+tmp/
+cache/
+
+# Databases / runtime data
+*.db
+*.sqlite
+*.sqlite3
+data/
+runtime/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary editor/backup artifacts
+*.tmp
+*.swp
+
+# Production certificates / infrastructure state
+acme/
+certificates/
+
+# Motion365 backups / snapshots
+*.backup*
+*.bak*
+*.before-*
+*.pre-*

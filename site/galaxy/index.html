@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion365 — My Galaxy</title>
+<style>
+body{margin:0;background:#05070f;color:#eef0ff;font-family:system-ui,sans-serif;min-height:100vh}
+main{max-width:900px;margin:auto;padding:40px 22px}
+a{color:#b9c4ff;text-decoration:none}
+.card{margin-top:30px;padding:28px;border:1px solid #282d49;border-radius:22px;background:#0c0f1c}
+h1{font-size:42px;margin:0 0 12px}
+p{font-size:19px;line-height:1.5;opacity:.85}
+button{width:100%;padding:16px;margin-top:22px;border:1px solid #4b56b8;border-radius:14px;background:#101633;color:white;font-size:17px}
+</style>
+</head>
+<body>
+<main>
+<a href="../">← Motion365 Galaxy</a>
+<div class="card">
+<div>IDENTITY · MOTION365</div>
+<h1>My Galaxy</h1>
+<p>Your personal Motion365 space and connected experience.</p>
+<button onclick="testMotionResolver(); return false;">Return to Galaxy</button>
+</div>
+</main>
+    <script src="motion-core.js"></script>
+</body>
+</html>
+
+<script>
+async function testMotionResolver() {
+  const result = await motionResolve({
+    source: "text",
+    intent: "navigate",
+    signals: { text: "Open my Galaxy" }
+  });
+  console.log("Motion365 Resolver:", result);
+  alert("Motion365 Resolver: " + JSON.stringify(result));
+}
+</script>

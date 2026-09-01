@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion365 Architect Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d24;color:#fff;font-family:Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}
+.card{background:#101633;border:1px solid #4b56b8;border-radius:14px;padding:20px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+button{width:100%;padding:14px;margin-top:10px;border:1px solid #4b56b8;border-radius:10px;background:#171d48;color:#fff;font-size:17px;cursor:pointer}
+button:hover{background:#242d68}
+input,select{width:100%;padding:12px;margin-top:8px;border-radius:9px;border:1px solid #4b56b8;background:#080d24;color:#fff}
+pre{white-space:pre-wrap;background:#080d24;padding:14px;border-radius:10px;overflow:auto}
+.ok{color:#79f2a2}
+</style>
+</head>
+
+<body>
+<main>
+
+<div class="card">
+<h1>Motion365 Architect Studio</h1>
+<p>Create, configure, and evolve Worlds, Portals, Nodes and Connections.</p>
+<p class="ok">● Architect Control Layer</p>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h2>🌎 Worlds</h2>
+<p id="worldCount">0 Worlds</p>
+<input id="worldName" placeholder="World name">
+<button id="createWorld">Create World</button>
+</div>
+
+<div class="card">
+<h2>🚪 Portals</h2>
+<p id="portalCount">0 Portals</p>
+<input id="portalName" placeholder="Portal name">
+<button id="createPortal">Create Portal</button>
+</div>
+
+<div class="card">
+<h2>🔹 Nodes</h2>
+<p id="nodeCount">0 Nodes</p>
+<input id="nodeName" placeholder="Node name">
+<button id="createNode">Create Node</button>
+</div>
+
+<div class="card">
+<h2>🔗 Connections</h2>
+<p id="connectionCount">0 Connections</p>
+<button id="connect">Connect World → Portal → Node</button>
+</div>
+
+<div class="card">
+<h2>📐 Blueprint</h2>
+<button id="blueprint">Generate Blueprint</button>
+<button id="json">View JSON</button>
+</div>
+
+<div class="card">
+<h2>🚀 Navigation</h2>
+<button onclick="location.href='/galaxy/'">Return to Galaxy</button>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Architect Registry</h2>
+<pre id="output">Ready.</pre>
+</div>
+
+<script>
+(function(){
+
+const KEY="motion365_architect_registry_v3";
+
+function load(){
+  try{
+    return JSON.parse(localStorage.getItem(KEY)) || {
+      worlds:[],
+      portals:[],
+      nodes:[],
+      connections:[]
+    };
+  }catch(e){
+    return {
+      worlds:[],
+      portals:[],
+      nodes:[],
+      connections:[]
+    };
+  }
+}
+
+function save(data){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  render();
+}
+
+function uid(){
+  return "m365-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+}
+
+function render(){
+  const r=load();
+  document.getElementById("worldCount").textContent=r.worlds.length+" Worlds";
+  document.getElementById("portalCount").textContent=r.portals.length+" Portals";
+  document.getElementById("nodeCount").textContent=r.nodes.length+" Nodes";
+  document.getElementById("connectionCount").textContent=r.connections.length+" Connections";
+}
+
+document.getElementById("createWorld").onclick=function(){
+  const input=document.getElementById("worldName");
+  const name=input.value.trim();
+
+  if(!name){
+    alert("Enter a World name.");
+    input.focus();
+    return;
+  }
+
+  const r=load();
+
+  r.worlds.push({
+    id:uid(),
+    name:name,
+    type:"world",
+    status:"draft",
+    created:new Date().toISOString()
+  });
+
+  save(r);
+  input.value="";
+  document.getElementById("output").textContent=
+    "WORLD CREATED\n\n"+JSON.stringify(r.worlds[r.worlds.length-1],null,2);
+};
+
+document.getElementById("createPortal").onclick=function(){
+  const input=document.getElementById("portalName");
+  const name=input.value.trim();
+
+  if(!name){
+    alert("Enter a Portal name.");
+    input.focus();
+    return;
+  }
+
+  const r=load();
+
+  r.portals.push({
+    id:uid(),
+    name:name,
+    type:"portal",
+    status:"draft",
+    created:new Date().toISOString()
+  });
+
+  save(r);
+  input.value="";
+  document.getElementById("output").textContent=
+    "PORTAL CREATED\n\n"+JSON.stringify(r.portals[r.portals.length-1],null,2);
+};
+
+document.getElementById("createNode").onclick=function(){
+  const input=document.getElementById("nodeName");
+  const name=input.value.trim();
+
+  if(!name){
+    alert("Enter a Node name.");
+    input.focus();
+    return;
+  }
+
+  const r=load();
+
+  r.nodes.push({
+    id:uid(),
+    name:name,
+    type:"node",
+    status:"draft",
+    created:new Date().toISOString()
+  });
+
+  save(r);
+  input.value="";
+  document.getElementById("output").textContent=
+    "NODE CREATED\n\n"+JSON.stringify(r.nodes[r.nodes.length-1],null,2);
+};
+
+document.getElementById("connect").onclick=function(){
+  const r=load();
+
+  if(!r.worlds.length||!r.portals.length||!r.nodes.length){
+    alert("Create at least one World, Portal and Node first.");
+    return;
+  }
+
+  r.connections.push({
+    id:uid(),
+    worldId:r.worlds[r.worlds.length-1].id,
+    portalId:r.portals[r.portals.length-1].id,
+    nodeId:r.nodes[r.nodes.length-1].id,
+    type:"world.portal.node",
+    status:"draft",
+    created:new Date().toISOString()
+  });
+
+  save(r);
+
+  document.getElementById("output").textContent=
+    "CONNECTION CREATED\n\n"+
+    JSON.stringify(r.connections[r.connections.length-1],null,2);
+};
+
+document.getElementById("blueprint").onclick=function(){
+  const r=load();
+
+  const blueprint={
+    type:"motion365.blueprint",
+    version:"1.0",
+    generated:new Date().toISOString(),
+    worlds:r.worlds,
+    portals:r.portals,
+    nodes:r.nodes,
+    connections:r.connections
+  };
+
+  document.getElementById("output").textContent=
+    JSON.stringify(blueprint,null,2);
+};
+
+document.getElementById("json").onclick=function(){
+  document.getElementById("output").textContent=
+    JSON.stringify(load(),null,2);
+};
+
+render();
+
+})();
+</script>
+
+<script>
+function architectGate(){
+  const code=prompt("Architect Access Code");
+  if(code!=="365"){
+    alert("Access denied");
+    location.href="/galaxy/";
+    return false;
+  }
+  return true;
+}
+architectGate();
+</script>
+
+</main>
+</body>
+</html>
