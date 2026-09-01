@@ -57,13 +57,38 @@ pre{white-space:pre-wrap;background:#080d24;padding:14px;border-radius:10px;over
 </div>
 
 <div class="card">
+<h2>🌐 Ecosystems</h2>
+<p id="ecosystemCount">0 Ecosystems</p>
+<input id="ecosystemName" placeholder="Ecosystem name">
+<input id="ecosystemWorld" placeholder="World ID (optional)">
+<button id="createEcosystem">Create Ecosystem</button>
+</div>
+<div class="card">
 <h2>📐 Blueprint</h2>
 <button id="blueprint">Generate Blueprint</button>
 <button id="json">View JSON</button>
 </div>
 
 <div class="card">
-<h2>🚀 Navigation</h2>
+<h2>🚀 Navigation</h2></div><div class="card">
+<h2>⚡ Motions</h2>
+<p id="motionCount">0 Motions</p>
+<input id="motionName" placeholder="Motion name">
+<input id="motionEcosystem" placeholder="Ecosystem ID (optional)">
+<input id="motionPurpose" placeholder="Motion purpose">
+<button id="createMotion">Create Motion</button>
+</div>
+<div class="card">
+<h2>🔹 Features</h2>
+<p id="featureCount">0 Features</p>
+<input id="featureName" placeholder="Feature name">
+<input id="featureMotion" placeholder="Motion ID (optional)">
+<input id="featurePurpose" placeholder="Feature purpose">
+<button id="createFeature">Create Feature</button>
+</div>
+
+
+
 <button onclick="location.href='/galaxy/'">Return to Galaxy</button>
 </div>
 
@@ -79,20 +104,62 @@ pre{white-space:pre-wrap;background:#080d24;padding:14px;border-radius:10px;over
 
 const KEY="motion365_architect_registry_v3";
 
+/* Motion365 Core Bridge — additive; preserves Architect Registry v3 */
+const MOTION_CORE="/v1/motion/resolve";
+
+async function motionCoreResolve(payload){
+  const request={
+    ...payload,
+    source: payload.source || "architect",
+    galaxy: payload.galaxy ?? true
+  };
+
+  const response=await fetch(MOTION_CORE,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(request)
+  });
+
+  const data=await response.json().catch(()=>({
+    error:"invalid_core_response"
+  }));
+
+  if(!response.ok){
+    throw new Error(data.detail || data.error || ("Motion Core HTTP "+response.status));
+  }
+
+  return data;
+}
+
+window.Motion365Core={
+  resolve:motionCoreResolve,
+  endpoint:MOTION_CORE,
+  status:"bridge-ready"
+};
+
+
 function load(){
   try{
     return JSON.parse(localStorage.getItem(KEY)) || {
       worlds:[],
       portals:[],
       nodes:[],
-      connections:[]
+      connections:[],
+            ecosystems:[],
+        motions:[],
+        features:[],
+
     };
   }catch(e){
     return {
       worlds:[],
       portals:[],
       nodes:[],
-      connections:[]
+      connections:[],
+            ecosystems:[],
+        motions:[],
+        features:[],
+
     };
   }
 }
@@ -217,6 +284,61 @@ document.getElementById("connect").onclick=function(){
     JSON.stringify(r.connections[r.connections.length-1],null,2);
 };
 
+document.getElementById("createEcosystem").onclick=function(){
+    const name=document.getElementById("ecosystemName").value.trim();
+    const worldId=document.getElementById("ecosystemWorld").value.trim();
+    if(!name){
+        alert("Enter an Ecosystem name.");
+        document.getElementById("ecosystemName").focus();
+        return;
+    }
+    const r=load();
+    r.ecosystems=r.ecosystems||[];
+    r.ecosystems.push({
+        id:uid(),
+        name:name,
+        type:"ecosystem",
+        worldId:worldId||null,
+        status:"draft",
+        created:new Date().toISOString()
+    });
+    save(r);
+    document.getElementById("ecosystemName").value="";
+    document.getElementById("ecosystemWorld").value="";
+    document.getElementById("ecosystemCount").textContent=r.ecosystems.length+" Ecosystems";
+    document.getElementById("output").textContent="ECOSYSTEM CREATED\n\n"+JSON.stringify(r.ecosystems[r.ecosystems.length-1],null,2);
+};
+document.getElementById("createMotion").onclick=function(){
+  const r=load();
+  const name=document.getElementById("motionName").value.trim();
+  const ecosystemId=document.getElementById("motionEcosystem").value.trim();
+  const purpose=document.getElementById("motionPurpose").value.trim();
+  if(!name){
+    document.getElementById("output").textContent="Motion name required.";
+    return;
+  }
+  const motion={
+    id:"motion-"+Date.now(),
+    type:"motion",
+    name:name,
+    ecosystemId:ecosystemId,
+    purpose:purpose,
+    status:"draft",
+    skill:null,
+    permission:"architect"
+  };
+  r.motions=r.motions||[];
+  r.motions.push(motion);
+  save(r);
+  document.getElementById("motionName").value="";
+  document.getElementById("motionEcosystem").value="";
+  document.getElementById("motionPurpose").value="";
+  document.getElementById("motionCount").textContent=r.motions.length+" Motions";
+  document.getElementById("output").textContent="MOTION CREATED\n\n"+JSON.stringify(motion,null,2);
+};
+
+document.getElementById("createFeature").onclick=function(){const r=load();const name=document.getElementById("featureName").value.trim();const motionId=document.getElementById("featureMotion").value.trim();const purpose=document.getElementById("featurePurpose").value.trim();if(!name){document.getElementById("output").textContent="Feature name required.";return;}const feature={id:"feature-"+Date.now(),type:"feature",name:name,motionId:motionId,purpose:purpose,status:"draft",permission:"architect"};r.features=r.features||[];r.features.push(feature);save(r);document.getElementById("featureName").value="";document.getElementById("featureMotion").value="";document.getElementById("featurePurpose").value="";document.getElementById("featureCount").textContent=r.features.length+" Features";document.getElementById("output").textContent="FEATURE CREATED\n\n"+JSON.stringify(feature,null,2);};
+
 document.getElementById("blueprint").onclick=function(){
   const r=load();
 
@@ -227,7 +349,11 @@ document.getElementById("blueprint").onclick=function(){
     worlds:r.worlds,
     portals:r.portals,
     nodes:r.nodes,
-    connections:r.connections
+    connections:r.connections,
+        ecosystems:r.ecosystems||[],
+        motions:r.motions||[],
+        features:r.features||[],
+
   };
 
   document.getElementById("output").textContent=
