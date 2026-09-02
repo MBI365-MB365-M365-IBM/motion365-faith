@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from registry import get_registry, put_registry
 
 CORE_VERSION = "1.0.0"
 
@@ -123,6 +124,15 @@ class Handler(BaseHTTPRequestHandler):
         return json.loads(raw.decode())
 
     def do_GET(self):
+        if self.path == "/v1/registry":
+            try:
+                return self.send_json(200, get_registry())
+            except Exception as exc:
+                return self.send_json(500, {
+                    "error": "registry_read_failed",
+                    "detail": str(exc)
+                })
+
         if self.path == "/health":
             return self.send_json(200, {
                 "status": "ok",
@@ -161,6 +171,20 @@ class Handler(BaseHTTPRequestHandler):
             })
 
         self.send_json(404, {"error": "not_found"})
+
+    def do_PUT(self):
+        if self.path == "/v1/registry":
+            try:
+                payload = self.read_json()
+                data = payload.get("registry", payload)
+                return self.send_json(200, put_registry(data))
+            except Exception as exc:
+                return self.send_json(400, {
+                    "error": "registry_write_failed",
+                    "detail": str(exc)
+                })
+
+        return self.send_json(404, {"error": "not_found"})
 
     def do_POST(self):
         if self.path == "/v1/motion/resolve":

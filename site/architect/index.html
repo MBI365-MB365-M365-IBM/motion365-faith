@@ -164,9 +164,17 @@ function load(){
   }
 }
 
-function save(data){
+async function save(data){
   localStorage.setItem(KEY,JSON.stringify(data));
   render();
+  try{
+    const response=await fetch("/v1/registry",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({registry:data})});
+    if(!response.ok) throw new Error("REGISTRY_WRITE_HTTP_"+response.status);
+    const payload=await response.json();
+    if(payload.registry) localStorage.setItem(KEY,JSON.stringify(payload.registry));
+  }catch(e){
+    console.warn("Motion365 registry write unavailable:",e);
+  }
 }
 
 function uid(){
@@ -365,7 +373,10 @@ document.getElementById("json").onclick=function(){
     JSON.stringify(load(),null,2);
 };
 
+async function hydrateRegistry(){try{const response=await fetch("/v1/registry",{cache:"no-store"});if(!response.ok)throw new Error("REGISTRY_HTTP_"+response.status);const payload=await response.json();if(!payload||!payload.registry)throw new Error("REGISTRY_PAYLOAD_INVALID");localStorage.setItem(KEY,JSON.stringify(payload.registry));render()}catch(e){console.warn("Motion365 registry hydration unavailable:",e)}}
+
 render();
+hydrateRegistry();
 
 })();
 </script>

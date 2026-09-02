@@ -6,6 +6,10 @@ motion365.faith {
         reverse_proxy motion365-core:8080
     }
 
+    handle /v1/registry {
+        reverse_proxy motion365-core:8080
+    }
+
     handle /v1/motion/* {
         reverse_proxy motion365-core:8080
     }
