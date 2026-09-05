@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion365 Voice</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 35%,#173b70,#050b18 65%);color:#fff;font-family:Arial,sans-serif;text-align:center}
+main{max-width:650px;margin:auto;padding:32px 20px}
+h1{margin:8px 0;font-size:32px}
+p{opacity:.8;line-height:1.5}
+.orb{width:190px;height:190px;margin:35px auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:58px;font-weight:bold;border:2px solid #8ec5ff;box-shadow:0 0 35px #368cff,0 0 90px #174d9b;cursor:pointer}
+.orb.listening{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 0 60px #8ec5ff,0 0 120px #174d9b}}
+button{border:1px solid #6fa8ff;background:#10284d;color:#fff;border-radius:24px;padding:12px 22px;margin:7px;font-size:16px}
+#status,#transcript,#response{margin:18px auto;padding:16px;border:1px solid #29466f;border-radius:16px;background:#071326;max-width:560px}
+.small{font-size:13px;opacity:.65}
+a{color:#9bcaff}
+</style>
+</head>
+<body>
+<main>
+<div class="small">M13 · MOTION ORB</div>
+<h1>Motion365 Voice</h1>
+<p>Speak naturally. Your Voice enters the Motion365 Resolver and returns a spoken response.</p>
+
+<div id="orb" class="orb" onclick="startVoice()">M13</div>
+
+<div id="status">Tap the Orb to speak.</div>
+<div id="transcript">Your words will appear here.</div>
+<div id="response">Motion365 response will appear here.</div>
+
+<button onclick="startVoice()">🎙 Speak</button>
+<button onclick="stopVoice()">Stop</button>
+<br>
+<a href="/">← Return to Orb</a>
+</main>
+
+<script>
+const orb=document.getElementById("orb");
+const statusBox=document.getElementById("status");
+const transcript=document.getElementById("transcript");
+const response=document.getElementById("response");
+
+let recognition;
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+function startVoice(){
+ if(!SpeechRecognition){
+  statusBox.textContent="Voice recognition is not supported in this browser.";
+  return;
+ }
+ recognition=new SpeechRecognition();
+ recognition.lang="en-US";
+ recognition.interimResults=false;
+ recognition.continuous=false;
+
+ recognition.onstart=()=>{
+  orb.classList.add("listening");
+  statusBox.textContent="Listening...";
+ };
+
+ recognition.onresult=e=>{
+  const text=e.results[0][0].transcript;
+  transcript.textContent=text;
+  resolveMotion(text);
+ };
+
+ recognition.onerror=e=>{
+  orb.classList.remove("listening");
+  statusBox.textContent="Voice error: "+e.error;
+ };
+
+ recognition.onend=()=>{
+  orb.classList.remove("listening");
+ };
+
+ recognition.start();
+}
+
+function stopVoice(){
+ if(recognition) recognition.stop();
+ orb.classList.remove("listening");
+ statusBox.textContent="Stopped.";
+}
+
+async function resolveMotion(text){
+ statusBox.textContent="Motion365 is resolving...";
+ try{
+  const r=await fetch("/v1/motion/resolve",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    signals:{text:text},
+    galaxy:true,
+    portal:"913",
+    world:"MOON365",
+    source:"voice"
+   })
+  });
+
+  const data=await r.json();
+  const result=data.result||data;
+
+  response.textContent=
+   "Intent: "+(result.intent||"unknown")+
+   " · Skill: "+(result.skill||"clarify");
+
+  const spoken=
+   "I heard you say "+text+
+   ". Motion365 has received your request.";
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(spoken));
+
+  statusBox.textContent="Resolved through Motion365.";
+ }catch(e){
+  statusBox.textContent="Unable to reach Motion365 Resolver.";
+  response.textContent=e.message;
+ }
+}
+</script>
+</body>
+</html>
